@@ -21,13 +21,13 @@ library(jcolors)
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
                       message = FALSE,
-                      fig.height = 12,
-                      fig.width = 10)
+                      fig.height = 5,
+                      fig.width = 7)
 
 ###-----------------------------------------------------------------------------
 ### ggplot2 option
 ## setting ggplot2 theme 
-theme_set(theme_bw())
+# theme_set(theme_bw())
 ```
 
 
@@ -37,22 +37,23 @@ data <- read.delim(file = '../data/nbNavires.csv', sep = ';', header = T)
 names(data) <- c('An', 'Pavillon', 'Pecherie', 'Nombre' )
 head(data)
 ```
-### 1. Nombre de navires
+# 1. Nombre de navires
 
-## 1.1. Evolution annuelle du nombre de navires par pêcherie
+## 1.1. Evolution annuelle du nombre de navires par segment
+
 ```{r}
 ggplot(data = data %>% group_by(An, Pecherie) %>% summarise(Nombre = sum(Nombre)), aes(x = An, y = Nombre, fill = Pecherie)) +
   geom_bar(stat="identity",position = "stack") +
-  xlab("Année") +
-  ylab("Nombre de navires") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
   guides(fill = guide_legend(label.position = "bottom"))+
   scale_fill_manual(values=c("lightblue",
-                             "darkblue"))
+                             "darkblue"))+
+  labs(x = "Année", y  ="Nombre de navires") 
 ```
+
+
 
 
 
@@ -62,16 +63,15 @@ ggplot(data = data %>% group_by(An, Pavillon) %>% summarise(Nombre = sum(Nombre)
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Nombre de navires") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
-  guides(fill = guide_legend(label.position = "bottom"))
+  guides(fill = guide_legend(label.position = "top"))
 
 ```
 
 
-### 2.Effort de pêche
+# 2.Effort de pêche
 
 
 ```{r, cache=TRUE}
@@ -81,6 +81,7 @@ names(data) <- c('An', 'Mois', 'Pavillon', 'Pecherie', 'Nombre')
 head(data)
 table(data$Mois)
 data$Mois <- factor(data$Mois, levels = c(as.character(paste0(1:12))))
+data$Pavillon <- toupper(data$Pavillon)
 ```
 
 
@@ -91,7 +92,6 @@ ggplot(data = data %>% group_by(An, Mois) %>% summarise(Nombre = sum(Nombre)), a
   geom_bar(stat="identity",position = "dodge") +
   xlab("Année") +
   ylab("Nombre de jours") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -106,7 +106,6 @@ ggplot(data = data %>% group_by(An, Pecherie) %>% summarise(Nombre = sum(Nombre)
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Nombre de jours") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -120,7 +119,6 @@ ggplot(data = data %>% group_by(An, Pavillon) %>% summarise(Nombre = sum(Nombre)
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Nombre de jours") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -130,7 +128,7 @@ ggplot(data = data %>% group_by(An, Pavillon) %>% summarise(Nombre = sum(Nombre)
 
 
 
-### Capture de la pêcherie demersale
+# 3. Capture de la pêcherie demersale
 
 
 ```{r, cache=TRUE}
@@ -143,21 +141,20 @@ data$Mois <- factor(data$Mois, levels = c(as.character(paste0(1:12))))
 
 data$Pavillon <- toupper(data$Pavillon)
 
-data$Espece <- ifelse(!(data$Espece %in% c('Calamar','Cherne','Courbines','Dorades', 'Merlu','Dorades','Poulpe','Seiche', 'Soles', 'St pierre', 'Volute', 'Autres poissons dÃ©mersaux')), 'Autre', data$Espece)
+data$Espece <- ifelse(!(data$Espece %in% c('Calamar','Cherne','Courbines','Dorades', 'Merlu','Dorades','Poulpe','Seiche', 'Soles', 'St pierre', 'Volute')), 'Autres poissons', data$Espece)
 
-data$Espece <- factor(data$Espece, levels = c('Poulpe', 'Seiche',  'Calamar', 'Dorades', 'Cherne','Courbines', 'Merlu','Soles', 'St pierre', 'Volute', 'Autres poissons dÃ©mersaux', 'Autre'))
+data$Espece <- factor(data$Espece, levels = c('Poulpe', 'Seiche',  'Calamar', 'Dorades', 'Cherne','Courbines', 'Merlu','Soles', 'St pierre', 'Volute', 'Autres poissons'))
 
 
 ```
 
 
-## 1.1 Evolution annuelle des captures mensuelles
+## 3.1 Evolution annuelle des captures mensuelles
 ```{r}
 ggplot(data = data %>% group_by(An, Mois) %>% summarise(Poids = sum(Poids)/1000), aes(x = An, y = Poids, fill = Mois)) +
   geom_bar(stat="identity",position = "dodge") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -166,7 +163,7 @@ ggplot(data = data %>% group_by(An, Mois) %>% summarise(Poids = sum(Poids)/1000)
 ```
 
 
-## 1.2 Evolution annuelle des captures par engin
+## 3.2 Evolution annuelle des captures par engin
 # Données à corriger
 ```{r}
 
@@ -186,13 +183,12 @@ ggplot(data = data %>% group_by(An, Mois) %>% summarise(Poids = sum(Poids)/1000)
 
 
 
-## 1.3 Evolution annuelle des captures par Segment de pêche
+## 3.3 Evolution annuelle des captures par Segment de pêche
 ```{r}
 ggplot(data = data %>% group_by(An, Pecherie) %>% summarise(Poids = sum(Poids)/1000), aes(x = An, y = Poids, fill = Pecherie)) +
   geom_bar(stat="identity",position = "dodge") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -201,14 +197,13 @@ ggplot(data = data %>% group_by(An, Pecherie) %>% summarise(Poids = sum(Poids)/1
 ```
 
 
-## 1.4 Evolution annuelle des captures par Espèce
+## 3.4 Evolution annuelle des captures par Espèce
 ```{r}
 
-ggplot(data = data %>% group_by(An, Espece) %>% summarise(Poids = sum(Poids)/1000), aes(x = An, y = Poids, fill = Espece)) +
+ggplot(data = data %>% filter(!(Espece %in% c('Poulpe','Seiche','Calamar'))) %>% group_by(An, Espece) %>% summarise(Poids = sum(Poids)/1000), aes(x = An, y = Poids, fill = Espece)) +
   geom_bar(stat="identity",position = "dodge") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -219,8 +214,8 @@ ggplot(data = data %>% group_by(An, Espece) %>% summarise(Poids = sum(Poids)/100
 
 
 
-## 1.5 Captures de poulpe
-# 1.5.1 Captures de poulpe par mois
+## 3.5 Captures de poulpe
+### 3.5.1 Captures de poulpe par mois
 
 
 ```{r}
@@ -229,7 +224,6 @@ ggplot(data = data %>% group_by(An, Mois) %>% filter(Espece=='Poulpe') %>% summa
   geom_bar(stat="identity",position = "dodge") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -238,7 +232,7 @@ ggplot(data = data %>% group_by(An, Mois) %>% filter(Espece=='Poulpe') %>% summa
 ```
 
 
-# 1.5.1 Captures de poulpe par pavillon
+### 3.5.2 Captures de poulpe par pavillon
 
 
 ```{r}
@@ -247,7 +241,6 @@ ggplot(data = data %>% group_by(An, Pavillon) %>% filter(Espece=='Poulpe') %>% s
   geom_bar(stat="identity",position = "dodge") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -258,7 +251,7 @@ ggplot(data = data %>% group_by(An, Pavillon) %>% filter(Espece=='Poulpe') %>% s
 
 
 
-# 1.5.1 Captures de poulpe par segment
+# 3.5.3 Captures de poulpe par segment
 
 
 ```{r}
@@ -267,7 +260,6 @@ ggplot(data = data %>% group_by(An, Pecherie) %>% filter(Espece=='Poulpe') %>% s
   geom_bar(stat="identity",position = "dodge") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -275,7 +267,7 @@ ggplot(data = data %>% group_by(An, Pecherie) %>% filter(Espece=='Poulpe') %>% s
 
 ```
 
-### 3. Captures accessoire des flottiles demersales 
+### 4. Captures accessoire des flottiles demersales 
 
 
 ```{r, cache=TRUE}
@@ -293,13 +285,12 @@ data$Pavillon <- toupper(data$Pavillon)
 ```
 
 
-## 3.1 Evolution par espèce
+## 4.1 Evolution par espèce
 ```{r}
 ggplot(data = data %>% group_by(An, Espece) %>% summarise(Poids = sum(Poids)/1000), aes(x = An, y = Poids, fill = Espece)) +
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -315,7 +306,6 @@ ggplot(data = data %>% group_by(An, Pavillon) %>% summarise(Poids = sum(Poids)/1
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -331,7 +321,6 @@ ggplot(data = data %>% group_by(An, Engin) %>% summarise(Poids = sum(Poids)/1000
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -343,7 +332,7 @@ ggplot(data = data %>% group_by(An, Engin) %>% summarise(Poids = sum(Poids)/1000
 
 
 
-### 4. Captures accessoire des flottiles pélagiques en céphalopodes 
+### 5. Captures accessoire des flottiles pélagiques en céphalopodes 
 
 
 ```{r, cache=TRUE}
@@ -355,6 +344,7 @@ table(data$Mois)
 data$Mois <- factor(data$Mois, levels = c(as.character(paste0(1:12))))
 
 data$Pavillon <- toupper(data$Pavillon)
+data$Engin <- toupper(data$Engin)
 
 
 
@@ -367,7 +357,6 @@ ggplot(data = data %>% group_by(An, Espece) %>% summarise(Poids = sum(Poids)/100
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -383,7 +372,6 @@ ggplot(data = data %>% group_by(An, Pavillon) %>% summarise(Poids = sum(Poids)/1
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
@@ -399,7 +387,6 @@ ggplot(data = data %>% group_by(An, Engin) %>% summarise(Poids = sum(Poids)/1000
   geom_bar(stat="identity",position = "stack") +
   xlab("Année") +
   ylab("Capture en T") +
-  labs(fill = " ") + 
   theme(legend.position="bottom",
         legend.spacing.x = unit(0.1, 'cm'),
         axis.title.y = element_blank())+
